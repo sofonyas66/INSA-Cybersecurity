@@ -95,3 +95,11 @@ ssh bandit0@bandit.labs.overthewire.org -p 2220
 - Bandit is the best way to build terminal muscle memory fast.
 
 ---
+
+## ✅ Homework
+
+- [ ] Install Kali Linux via VirtualBox
+- [ ] Set up Git and GitHub account
+- [ ] Start Bandit (levels 0–10)
+
+---
