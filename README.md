@@ -23,23 +23,6 @@ INSA-Cybersecurity/
 └── README.md
 ```
 
-## 🗓️ Program Log
-
-| Day | Date | Topics Covered |
-|-----|------|----------------|
-| Day 1 | Mar 7, 2026 | Orientation, Linux philosophy, folder structure, Bandit intro |
-| Day 2 | Mar 8, 2026 | File permissions, terminal commands, payload challenge |
-| Day 3 | Mar __, 2026 | Power tools (grep, find, sudo), privilege escalation, text editors |
-
-## 🚀 Skills Practiced
-
-- Linux Terminal Navigation (Bash/Zsh)
-- Linux File System Hierarchy
-- File Permissions & Ownership (`chmod`, `chown`)
-- Red Team / Blue Team Methodology
-- CTF Flag Hunting
-- Network Monitoring (personal project: [NetGuardian](https://github.com/sofonyas66/NetGuardian))
-
 ## 🔗 Related Projects
 
 - [NetGuardian](https://github.com/sofonyas66/NetGuardian) — Flask-based network monitoring tool
