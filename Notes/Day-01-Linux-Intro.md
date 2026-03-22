@@ -1,8 +1,6 @@
 # Day 01 — Linux Introduction & Orientation
 
 **Date:** Saturday, March 7, 2026  
-**Track:** Cybersecurity  
-**Session:** Full Day (8:30 AM – ~5:30 PM)
 
 ---
 
