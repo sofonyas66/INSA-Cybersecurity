@@ -1,8 +1,6 @@
 # Day 04 — Networking Basics
 
 **Date:** March 22, 2026
-**Track:** Cybersecurity
-**Session:** Full Day
 
 ---
 
@@ -45,7 +43,7 @@ Every device needs one to communicate.
 
 ```
 IPv4 → 192.168.1.1     (32-bit, ~4 billion addresses)
-IPv6 → 2001:db8::1     (128-bit, virtually unlimited)
+IPv6 → 2001:db8::1     (128-bit, 340 undecillion addresses)
 ```
 
 ---
@@ -140,11 +138,6 @@ Read bottom to top → 11000000
 240 = 11110000
 255 = 11111111
 0   = 00000000
-```
-
-**Check in terminal:**
-```bash
-python3 -c "print(bin(192))"
 ```
 
 ---
@@ -474,8 +467,10 @@ Dangerous open ports:
 
 ## Homework / Research
 
-- [ ] Research OSI model in detail — push to GitHub
+- [ ] Research OSI model in detail & typical attacks to each layer
+- [ ] Research Subnet mask (subnetting)
+- [ ] 30 common ports, services, and typical attacks
+- [ ] tool that takes an IP and outputs: class, public/private, validity, and default subnet mask
 - [ ] Practice binary conversion for all IP classes
-- [ ] Study subnetting — practice with ipcalc
-- [ ] Learn what happens at each OSI layer during an attack
-EOF
+
+---
