@@ -1,9 +1,6 @@
 # Challenge Write-Up: Hidden Messages — Steganography #02
 
 **Date:** March 22, 2026
-**Program:** INSA Cyber Talent Weekend Program
-**Track:** Cybersecurity
-**Flags Found:** 4/5
 
 ---
 
