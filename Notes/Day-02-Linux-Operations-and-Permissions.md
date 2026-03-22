@@ -133,3 +133,5 @@ touch test{1..5}.txt
 - [ ] Practice `chmod` with different permission combinations
 - [ ] Push today's notes to GitHub
 - [ ] Try Bandit levels 5–10 (uses `find` and `grep` heavily)
+
+---
