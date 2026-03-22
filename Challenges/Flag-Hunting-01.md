@@ -187,3 +187,75 @@ cat /proc/[PID]/environ 2>/dev/null
 This was my first real flag-hunting exercise. I solved Flag 1 using **Termux on my phone** before the class session ended — no laptop, just a phone and terminal knowledge. That experience made it clear that the tools matter less than understanding the system.
 
 > *"Know the system — the flags will reveal themselves."*
+
+
+
+
+
+
+
+
+
+
+## 🚩 Practical Challenge — Payload & Flag Hunting
+
+### The Challenge
+Mentors gave us a **payload** (executable file). We ran it, and it hid **3 flags** at different locations on the system. The task was to find all 3.
+
+### Flag 1 — `/tmp` Directory ✅ Found
+
+**Concept:** Attackers use `/tmp` because it's world-writable and files blend in.
+
+```bash
+ls -la /tmp
+# Noticed: admin....txt
+
+cat /tmp/admin....txt
+# FLAG FOUND
+```
+
+**Lesson:** Always check `/tmp` immediately after running an unknown file.
+
+### Flag 2 — `/var/log` Directory ✅ Found (by teammate)
+
+**Concept:** Malware mimics log files to hide in the most "normal" place a Blue Team watches.
+
+```bash
+ls -lt /var/log        # Sort by time — the fake log is newest
+grep -r "flag" /var/log
+# FLAG FOUND
+```
+
+**Lesson:** In a real incident response, sort logs by modification time to spot anomalies.
+
+### Flag 3 — Unknown Location ⏳ In Progress
+
+Likely hiding in one of these places:
+
+```bash
+# Check environment variables
+printenv | grep -i flag
+env | grep -i flag
+
+# Check hidden dotfiles in home directory
+ls -la ~
+
+# Search the entire system
+find / -name "*flag*" 2>/dev/null
+
+# Check running processes
+ps aux | grep -i flag
+```
+
+---
+
+## 🔧 Useful Tools for Flag Hunting
+
+```bash
+strings filename         # Extract human-readable text from binary
+grep -i "flag" file      # Case-insensitive search inside file
+find / -name "*flag*"    # Search filesystem for filename
+binwalk filename         # Detect and extract hidden files inside a file
+hexdump -C file | less   # View raw bytes (for encoded flags)
+exiftool file            # Read file metadata
+```
