@@ -1,8 +1,6 @@
 # Day 03 — Linux Power Tools & Privilege Escalation
 
-**Date:** TBD  
-**Track:** Cybersecurity  
-**Session:** Full Day
+**Date:** Saturday, March 21, 2026  
 
 ---
 
@@ -81,12 +79,6 @@ ps aux | grep ssh                 # Find SSH-related processes
 cat /var/log/syslog | grep error  # Find errors in system log
 ```
 
-**CTF Tip:**
-```bash
-strings binary_file | grep -i flag    # Find flags in a binary
-grep -r "INSA{" /                     # Search entire system for flag format
-```
-
 ---
 
 ### C. `find` — Locate Files by Attribute
@@ -131,9 +123,6 @@ kill -9 PID                # Force kill a process by its ID
 | %CPU | CPU usage |
 | %MEM | Memory usage |
 | COMMAND | The actual command |
-
-**Security Use:**  
-After running a suspicious file, immediately check `ps aux` to see if it spawned any background processes.
 
 ---
 
@@ -183,12 +172,9 @@ vim filename.txt     # Open or create file
 # p          →  Paste
 ```
 
-### VS Code — For Project-Level Work
-Best used for larger codebases, scripts, and when working with a GUI. Not available in a pure terminal environment.
-
 ---
 
-## 🔄 The `strings` Command — Deep Dive
+## 🔄 The `strings` Command
 
 `strings` is one of the first tools used in **binary analysis** and **CTF challenges**.
 
@@ -220,7 +206,4 @@ echo "ZmxhZ3t0ZXN0fQ==" | base64 -d
 
 ## ✅ Homework
 
-- [ ] Find a SUID binary on your Kali install and research if it's exploitable
-- [ ] Use `grep -r` to search `/etc` for any file containing the word "password"
 - [ ] Practice Vim — open a file, edit it, save and quit without using nano
-- [ ] Push this week's notes and challenge write-ups to GitHub
