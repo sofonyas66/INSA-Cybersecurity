@@ -1,10 +1,6 @@
 # Challenge Write-Up: Payload Flag Hunting #01
 
 **Date:** March 8, 2026  
-**Program:** INSA Cyber Talent Weekend Program  
-**Track:** Cybersecurity  
-**Difficulty:** Beginner — Intermediate  
-**Flags Found:** 2/3
 
 ---
 
@@ -14,10 +10,9 @@
 Flag hunting is a cybersecurity exercise where you execute a potentially malicious binary and locate hidden flags (text files containing sensitive information) that it drops across the Linux filesystem. This mimics real-world **incident response**, where analysts must find artifacts left behind by attackers.
 
 **Challenge Objective:**
-1. Execute a mysterious payload (executable file)
-2. Observe its behavior without harming the system
-3. Find **3 hidden flags** dispersed across different directories
-4. Understand attacker tradecraft and common hiding spots
+1. Execute **challenge_3** (payload executable file)
+2. Find **3 hidden flags** dispersed across different directories
+3. Understand attacker tradecraft and common hiding spots
 
 This exercise teaches defensive skills: recognizing where attackers hide data and how to systematically search a compromised system.
 
@@ -58,12 +53,11 @@ chmod +x payload
 
 ---
 
-## 🚩 Flag 1 — `/tmp` Directory
-
-**Status:** ✅ Found  
+## 🚩 Flag 1 — 
+```
+tmp/admin_credentials.txt
+```
 **Tool Used:** `ls -la`, `cat`  
-**Environment:** Termux (phone) — no laptop available  
-**Difficulty:** Easy
 
 ### Why `/tmp`?
 
