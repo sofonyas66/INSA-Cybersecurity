@@ -12,9 +12,6 @@
 - Attendance is tracked every Saturday and Sunday
 - Progress is monitored via **GitHub** — notes, assignments, and challenges must be pushed regularly
 - Recommended note-taking tools: **Obsidian** or **Notion**
-- Transport is self-arranged (INSA does not provide it)
-- The Telegram group is the primary communication channel for updates and orientation
-
 ---
 
 ## 🐧 The Linux Philosophy
@@ -100,10 +97,3 @@ ssh bandit0@bandit.labs.overthewire.org -p 2220
 - Bandit is the best way to build terminal muscle memory fast.
 
 ---
-
-## ✅ Homework
-
-- [ ] Install Kali Linux via VirtualBox
-- [ ] Set up Git and GitHub account
-- [ ] Start Bandit (levels 0–5)
-- [ ] Push setup progress to GitHub repo
