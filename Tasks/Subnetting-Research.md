@@ -1,4 +1,3 @@
-```markdown
 # Subnetting & Subnet Mask — Research
 
 **Name:** Sofonyas Yared
