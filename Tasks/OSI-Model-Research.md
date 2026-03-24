@@ -274,6 +274,31 @@ A  P       S      T  N      D    P
 Please Do Not Throw Sausage Pizza Away
 P      D  N   T     S       P     A
 ```
+---
+
+## Typical Attacks Per Layer
+
+| Layer | Attack | Description |
+|-------|--------|-------------|
+| 7 Application | SQL Injection | Malicious SQL inserted into input fields |
+| 7 Application | XSS | Malicious scripts injected into web pages |
+| 7 Application | Phishing | Fake websites steal credentials |
+| 7 Application | DNS Spoofing | Fake DNS responses redirect traffic |
+| 6 Presentation | SSL Stripping | Downgrade HTTPS to HTTP |
+| 6 Presentation | Cipher Attack | Exploit weak encryption algorithms |
+| 5 Session | Session Hijacking | Steal session token to takeover account |
+| 5 Session | Session Fixation | Force victim to use attacker's session ID |
+| 4 Transport | SYN Flood | Flood server with SYN requests (DoS) |
+| 4 Transport | Port Scanning | Probe open ports to find services |
+| 3 Network | IP Spoofing | Fake source IP address |
+| 3 Network | ICMP Flood | Ping flood overwhelms target (DoS) |
+| 3 Network | Route Hijacking | Redirect traffic through attacker |
+| 2 Data Link | ARP Poisoning | Link attacker MAC to victim IP (MitM) |
+| 2 Data Link | MAC Spoofing | Fake MAC to bypass filtering |
+| 2 Data Link | MAC Flooding | Overflow switch memory — acts like hub |
+| 1 Physical | Cable Tapping | Physically intercept cable signals |
+| 1 Physical | Hardware Keylogger | Device records keystrokes |
+| 1 Physical | Jamming | Disrupt wireless signals |
 
 ---
 
