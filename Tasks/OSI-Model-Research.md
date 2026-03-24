@@ -1,5 +1,6 @@
 # OSI Model — Research Document
 
+**Name:** Sofonyas66 Yared
 **Date:** March 22, 2026  
 
 ---
