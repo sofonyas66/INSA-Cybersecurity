@@ -211,18 +211,17 @@ Application  → user sees the data
 
 **Real world — opening google.com:**
 ```
-1. You type google.com (Layer 7 — HTTP request)
-2. TLS encrypts request (Layer 6)
-3. Session maintained (Layer 5)
-4. TCP breaks into segments (Layer 4)
-5. IP address added — your IP to Google IP (Layer 3)
-6. MAC address added (Layer 2)
-7. Bits sent over cable/wifi (Layer 1)
-         ↓ travels across internet ↓
-8. Google receives bits (Layer 1)
-9. Reads up through layers
-10. Google's browser engine processes request (Layer 7)
-11. Response travels back same way
+## Real World Example — Sending a Telegram Message
+
+| Step | Layer | What happens |
+|------|-------|-------------|
+| You type "Hello" | 7 Application | Telegram app processes message |
+| MTProto encrypts it | 6 Presentation | Message encrypted end-to-end |
+| Session kept open | 5 Session | Connection maintained while chatting |
+| TCP segments data | 4 Transport | Message broken into packets |
+| IP routes to server | 3 Network | Travels from your IP to Telegram server |
+| MAC on local network | 2 Data Link | Sent to your router via MAC address |
+| WiFi/4G carries bits | 1 Physical | Radio waves carry the data |
 ```
 
 ---
