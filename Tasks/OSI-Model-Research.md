@@ -278,7 +278,7 @@ P      D  N   T     S       P     A
 ---
 
 ## Typical Attacks Per Layer
-
+```
 | Layer | Attack | Description |
 |-------|--------|-------------|
 | 7 Application | SQL Injection | Malicious SQL inserted into input fields |
@@ -300,7 +300,7 @@ P      D  N   T     S       P     A
 | 1 Physical | Cable Tapping | Physically intercept cable signals |
 | 1 Physical | Hardware Keylogger | Device records keystrokes |
 | 1 Physical | Jamming | Disrupt wireless signals |
-
+```
 ---
 
 ## Summary Table
