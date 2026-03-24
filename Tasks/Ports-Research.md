@@ -186,4 +186,3 @@ nmap -sV 192.168.1.1
 # See open ports on your machine
 ss -tuln
 ```
-```
