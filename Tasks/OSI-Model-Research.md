@@ -220,7 +220,6 @@ Application  → user sees the data
 | IP routes to server | 3 Network | Travels from your IP to Telegram server |
 | MAC on local network | 2 Data Link | Sent to your router via MAC address |
 | WiFi/4G carries bits | 1 Physical | Radio waves carry the data |
-```
 
 ---
 
