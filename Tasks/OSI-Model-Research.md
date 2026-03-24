@@ -208,10 +208,8 @@ Session      → maintains session
 Presentation → decrypts data
 Application  → user sees the data
 ```
-
-**Real world — opening google.com:**
-```
-## Real World Example — Sending a Telegram Message
+---
+## Real World Example — Sending a Telegram Message:
 
 | Step | Layer | What happens |
 |------|-------|-------------|
