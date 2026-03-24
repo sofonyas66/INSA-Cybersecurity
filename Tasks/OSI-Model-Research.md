@@ -278,7 +278,7 @@ P      D  N   T     S       P     A
 ---
 
 ## Typical Attacks Per Layer
-```
+
 | Layer | Attack | Description |
 |-------|--------|-------------|
 | 7 Application | SQL Injection | Malicious SQL inserted into input fields |
