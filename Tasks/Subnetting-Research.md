@@ -1,8 +1,6 @@
 # Subnetting & Subnet Mask — Research
 
 **Name:** Sofonyas Yared
-**Program:** INSA Cyber Talent Weekend Program
-**Track:** Cybersecurity
 **Date:** March 22, 2026
 
 ---
