@@ -1,8 +1,6 @@
 # OSI Model — Research Document
 
 **Name:** Sofonyas Yared  
-**Program:** INSA Cyber Talent Weekend Program  
-**Track:** Cybersecurity  
 **Date:** March 22, 2026  
 
 ---
@@ -212,20 +210,17 @@ Presentation → decrypts data
 Application  → user sees the data
 ```
 
-**Real world — opening google.com:**
-```
-1. You type google.com (Layer 7 — HTTP request)
-2. TLS encrypts request (Layer 6)
-3. Session maintained (Layer 5)
-4. TCP breaks into segments (Layer 4)
-5. IP address added — your IP to Google IP (Layer 3)
-6. MAC address added (Layer 2)
-7. Bits sent over cable/wifi (Layer 1)
-         ↓ travels across internet ↓
-8. Google receives bits (Layer 1)
-9. Reads up through layers
-10. Google's browser engine processes request (Layer 7)
-11. Response travels back same way
+## Real World Example — Sending a Telegram Message
+
+| Step | Layer | What happens |
+|------|-------|-------------|
+| You type "Hello" | 7 Application | Telegram app processes message |
+| MTProto encrypts it | 6 Presentation | Message encrypted end-to-end |
+| Session kept open | 5 Session | Connection maintained while chatting |
+| TCP segments data | 4 Transport | Message broken into packets |
+| IP routes to server | 3 Network | Travels from your IP to Telegram server |
+| MAC on local network | 2 Data Link | Sent to your router via MAC address |
+| WiFi/4G carries bits | 1 Physical | Radio waves carry the data |
 ```
 
 ---
@@ -277,6 +272,34 @@ A  P       S      T  N      D    P
 Please Do Not Throw Sausage Pizza Away
 P      D  N   T     S       P     A
 ```
+
+---
+
+---
+
+## Typical Attacks Per Layer
+
+| Layer | Attack | Description |
+|-------|--------|-------------|
+| 7 Application | SQL Injection | Malicious SQL inserted into input fields |
+| 7 Application | XSS | Malicious scripts injected into web pages |
+| 7 Application | Phishing | Fake websites steal credentials |
+| 7 Application | DNS Spoofing | Fake DNS responses redirect traffic |
+| 6 Presentation | SSL Stripping | Downgrade HTTPS to HTTP |
+| 6 Presentation | Cipher Attack | Exploit weak encryption algorithms |
+| 5 Session | Session Hijacking | Steal session token to takeover account |
+| 5 Session | Session Fixation | Force victim to use attacker's session ID |
+| 4 Transport | SYN Flood | Flood server with SYN requests (DoS) |
+| 4 Transport | Port Scanning | Probe open ports to find services |
+| 3 Network | IP Spoofing | Fake source IP address |
+| 3 Network | ICMP Flood | Ping flood overwhelms target (DoS) |
+| 3 Network | Route Hijacking | Redirect traffic through attacker |
+| 2 Data Link | ARP Poisoning | Link attacker MAC to victim IP (MitM) |
+| 2 Data Link | MAC Spoofing | Fake MAC to bypass filtering |
+| 2 Data Link | MAC Flooding | Overflow switch memory — acts like hub |
+| 1 Physical | Cable Tapping | Physically intercept cable signals |
+| 1 Physical | Hardware Keylogger | Device records keystrokes |
+| 1 Physical | Jamming | Disrupt wireless signals |
 
 ---
 
