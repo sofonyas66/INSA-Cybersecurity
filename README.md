@@ -13,12 +13,10 @@ This repository documents my learning journey through the INSA National Cyber Ta
 ```
 INSA-Cybersecurity/
 ├── Notes/
-│   ├── Day-01-Linux-Intro.md
-│   ├── Day-02-Linux-Operations-and-Permissions.md
-│   └── Day-03-Linux-Power-Tools.md
+│   └── Day-01-Linux-Intro.md
 ├── Challenges/
 │   └── Flag-Hunting-01.md
-├── Assignments/
+├── Tasks/
 │   └── Terminal-Practice.md
 └── README.md
 ```
