@@ -1,7 +1,5 @@
 # Linux Research Quiz — Detailed Notes
 
-Based on your presentation slide, here's a thorough breakdown of each topic:
-
 ---
 
 ## 1. Linux User Management
