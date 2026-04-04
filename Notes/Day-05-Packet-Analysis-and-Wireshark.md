@@ -1,8 +1,6 @@
 # Day 05 — Packet Analysis & Wireshark
 
-**Date:** March 29, 2026
-**Track:** Cybersecurity
-**Session:** Full Day
+**Date:** Saturday March 29, 2026
 
 ---
 

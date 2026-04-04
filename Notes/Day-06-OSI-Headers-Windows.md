@@ -1,8 +1,6 @@
 # Day 06 — OSI Encapsulation, Headers & Windows Analysis
 
-**Date:** March 29, 2026
-**Track:** Cybersecurity
-**Session:** Full Day
+**Date:** Sunday March 29, 2026
 
 ---
 

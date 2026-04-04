@@ -1,6 +1,6 @@
-# Week 4 Saturday | Tshark, C2 & Nmap Deep Dive
+# Day 07 — Tshark, C2 & Nmap Deep Dive
 
-**Date:** April 4, 2026
+**Date:** Saturday April 4, 2026
 
 ---
 

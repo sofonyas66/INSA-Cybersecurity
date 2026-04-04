@@ -1,6 +1,6 @@
 # Day 04 — Networking Basics
 
-**Date:** March 22, 2026
+**Date:** Sunday March 22, 2026
 
 ---
 
