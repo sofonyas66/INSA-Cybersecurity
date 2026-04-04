@@ -1,7 +1,5 @@
 # Assignments — Terminal Practice Log
 
-**Track:** Cybersecurity  
-
 ---
 
 ## 📋 Assignment 1 — Linux Folder Structure Challenge
