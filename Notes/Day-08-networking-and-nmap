@@ -1,0 +1,15 @@
+## Nmap scripts are written in Lua
+
+The Nmap Scripting Engine (NSE) uses an embedded Lua interpreter (Lua 5.4 in recent releases) to automate a wide variety of networking tasks.
+
+## Why Nmap uses Lua
+
+- Embeddability: Lua is lightweight and designed to be easily integrated into other software like Nmap.
+- Efficiency: It is fast and supports coroutines, which allow Nmap to execute many scripts in parallel without a huge performance cost.
+- Simplicity: The language is easy to learn for anyone with basic scripting or C-style programming experience.
+
+## Key script details
+
+- File extension: Nmap scripts use the `.nse` file extension.
+- Standard library: Nmap provides specialized [NSE Libraries](https://nmap.org/book/nse-library.html) (like `http`, `smb`, and `ssl`) that connect Lua to Nmap's internal scanning features.
+- Execution: You can run these scripts using the `--script` flag or the `-sC` option for the default script set.
