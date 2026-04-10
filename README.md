@@ -21,12 +21,6 @@ INSA-Cybersecurity/
 └── README.md
 ```
 
-## 🔗 Related Projects
-
-- [NetGuardian](https://github.com/sofonyas66/NetGuardian) — Flask-based network monitoring tool
-- [Cyber Command Suite](https://github.com/sofonyas66/cyber-command-suite-main) — Security automation scripts
-- [Dotfiles](https://github.com/sofonyas66/dotfiles) — Personal Linux environment config
-
 ---
 
 > *"In Linux, everything is a file."*
