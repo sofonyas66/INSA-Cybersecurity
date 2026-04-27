@@ -1,5 +1,7 @@
 # Day 9 — Theory Exam Reflection
 
+**Date:** Saturday April 18, 2026
+
 > Topics I found tricky and what I learned from them
 
 ---

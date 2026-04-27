@@ -1,6 +1,6 @@
 # Day 08 — Nmap & Networking Revision
 
-**Date:** sunday April 6, 2026
+**Date:** sunday April 5, 2026
 ---
 
 ## Overview

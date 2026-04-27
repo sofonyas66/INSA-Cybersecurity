@@ -1,6 +1,6 @@
 # Day 05 — Packet Analysis & Wireshark
 
-**Date:** Saturday March 29, 2026
+**Date:** Saturday March 28, 2026
 
 ---
 

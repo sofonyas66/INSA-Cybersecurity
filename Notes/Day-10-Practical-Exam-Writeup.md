@@ -1,5 +1,7 @@
 # Day 10 — Practical Exam Writeup
-## CTF Challenge: Black Box Penetration Test
+## CTF Challenge: Penetration Test
+
+**Date:** Sunday April 19, 2026
 
 > Given only an IP address, find all hidden flags using real security tools and techniques.
 
