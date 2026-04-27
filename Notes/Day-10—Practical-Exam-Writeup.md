@@ -4,7 +4,6 @@
 > Given only an IP address, find all hidden flags using real security tools and techniques.
 
 **Target**: `ec2-3-227-254-50.compute-1.amazonaws.com` (`3.227.254.50`)  
-**Time limit**: 30 minutes  
 **Flags found**: 9/11  
 
 ---
