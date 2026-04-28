@@ -1,7 +1,7 @@
 # INSA Cybersecurity Talent Program — 2026
 
 **Name:** Sofonyas Yared  
-**Track:** Cybersecurity — Network Defense  
+**Track:** Cybersecurity  
 **GitHub:** [github.com/sofonyas66](https://github.com/sofonyas66)
 
 ---
