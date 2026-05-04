@@ -185,6 +185,5 @@ Fix permission table in Day 0 notes
 ## 📝 Personal Notes & Reflections
 
 - The "one command" folder structure challenge showed the power of Brace Expansion
-- Need more practice with `find` flags — there are a lot of options
 
 ---
