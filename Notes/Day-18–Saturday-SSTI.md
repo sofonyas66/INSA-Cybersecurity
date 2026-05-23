@@ -1,4 +1,4 @@
-# Day 18 – Saturday | Server-Side Template Injection (SSTI)
+# Day 18 – | Server-Side Template Injection (SSTI)
 
 **Topic:** Detection & Fingerprinting, Common RCE payloads, Engines
 
