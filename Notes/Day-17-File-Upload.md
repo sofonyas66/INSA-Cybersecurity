@@ -2,7 +2,7 @@
 
 **Topic:** File Upload Vulnerabilities — From Simple Bugs to Remote Code Execution (RCE)
 
-**Date:** Sunday May 16, 2026
+**Date:** Saturday May 16, 2026
 
 ---
 
